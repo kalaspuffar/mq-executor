@@ -1,0 +1,10 @@
+{
+  "rabbitmq_hosts": "",
+  "rabbitmq_port": 5672,
+  "rabbitmq_worker_name": "",
+  "rabbitmq_username": "",
+  "rabbitmq_password": "",
+  "rabbitmq_vhost": "",
+  "rabbitmq_request_queue": "",
+  "rabbitmq_response_queue": "",
+}
