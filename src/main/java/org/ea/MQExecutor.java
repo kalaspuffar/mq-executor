@@ -58,13 +58,13 @@ public class MQExecutor {
             System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
 
-            final MQExecutorConsumer appDeployConsumer = new MQExecutorConsumer(channel, config);
+            final MQExecutorConsumer mqExecutorConsumer = new MQExecutorConsumer(channel, config);
 
             channel.basicConsume(
                     (String) config.get(ConfigConst.REQUEST_QUEUE_NAME),
                     false,
                     (String) config.get(ConfigConst.WORKER_NAME),
-                    appDeployConsumer
+                    mqExecutorConsumer
             );
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -76,7 +76,7 @@ public class MQExecutor {
 
                 int timeout = 300; // Timeout is 5 minutes.
 
-                while (timeout > 0 && appDeployConsumer.isWorking()) {
+                while (timeout > 0 && mqExecutorConsumer.isWorking()) {
                     System.out.println("busy");
                     try {
                         Thread.sleep(1000);

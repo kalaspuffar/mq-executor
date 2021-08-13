@@ -2,11 +2,9 @@ package org.ea;
 
 import org.json.simple.JSONObject;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CommandLineBuilderTest {
-
 
     @Test
     public void errorCommand() throws Exception {
@@ -21,6 +19,7 @@ public class CommandLineBuilderTest {
             "Command 'MISSING!' missing\n" +
                     "\n" +
                     "Available commands:\n" +
+                    "list_directory - Command that will list the temp directory.\n" +
                     "echo - Command to echo messages\n",
             commandLineBuilder.getErrorMessage()
         );

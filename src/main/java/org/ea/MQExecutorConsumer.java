@@ -9,6 +9,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import java.io.*;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class MQExecutorConsumer extends DefaultConsumer {
@@ -36,7 +37,7 @@ public class MQExecutorConsumer extends DefaultConsumer {
         String message;
         StringBuilder response = new StringBuilder();
 
-        File workDirectory = new File("/tmp/AppDeployer-" + System.currentTimeMillis());
+        File workDirectory = new File("/tmp/MQExecutor-" + System.currentTimeMillis());
 
 
         try {
@@ -66,7 +67,35 @@ public class MQExecutorConsumer extends DefaultConsumer {
         }
     }
 
-    private void handleMessage(StringBuilder response, File workDirectory, JSONObject message) throws Exception {
+    private int runCommand(CommandLineBuilder clb, StringBuilder stdOutAndErr, File workDirectory) throws Exception {
+        boolean windows = System.getProperty("os.name").startsWith("Windows");
+
+        ProcessBuilder builder = new ProcessBuilder(windows ? "cmd.exe" : "/bin/sh");
+        Process process = builder.start();
+
+        BufferedWriter cmdLine = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+
+        String errorHandling = windows ? "IF %ERRORLEVEL% NEQ 0 (EXIT /B %ERRORLEVEL%)" : "[ $? -eq 0 ] || exit $?";
+
+        for (String cmd : clb.getCommand().split("\n")) {
+            cmdLine.write(cmd);
+            cmdLine.newLine();
+            cmdLine.write(errorHandling);
+            cmdLine.newLine();
+            cmdLine.flush();
+        }
+
+        cmdLine.write(windows ? "EXIT /B 0" : "exit 0");
+        cmdLine.newLine();
+        cmdLine.flush();
+
+        process.waitFor(1, TimeUnit.HOURS);
+        printStream(stdOutAndErr, process.getErrorStream());
+        printStream(stdOutAndErr, process.getInputStream());
+        return process.exitValue();
+    }
+
+    protected void handleMessage(StringBuilder response, File workDirectory, JSONObject message) throws Exception {
         int exitValue = 0;
         StringBuilder stdOutAndErr = new StringBuilder();
 
@@ -77,13 +106,7 @@ public class MQExecutorConsumer extends DefaultConsumer {
             exitValue = -1;
             stdOutAndErr.append(clb.getErrorMessage());
         } else {
-            boolean windows = System.getProperty("os.name").startsWith("Windows");
-            String cmd = (windows ? "cmd /c " : "") + clb.getCommand();
-            Process process = Runtime.getRuntime().exec(cmd, null, workDirectory);
-            process.waitFor(1, TimeUnit.HOURS);
-            printStream(stdOutAndErr, process.getErrorStream());
-            printStream(stdOutAndErr, process.getInputStream());
-            exitValue = process.exitValue();
+            exitValue = runCommand(clb, stdOutAndErr, workDirectory);
         }
 
         response.append("=====================================================\n");
