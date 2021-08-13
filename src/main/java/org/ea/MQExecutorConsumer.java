@@ -9,6 +9,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -102,6 +106,7 @@ public class MQExecutorConsumer extends DefaultConsumer {
         CommandLineBuilder clb = new CommandLineBuilder();
         clb.setMessage(message);
 
+        Instant fileStart = Instant.now();
         if (!clb.build()) {
             exitValue = -1;
             stdOutAndErr.append(clb.getErrorMessage());
@@ -109,10 +114,14 @@ public class MQExecutorConsumer extends DefaultConsumer {
             exitValue = runCommand(clb, stdOutAndErr, workDirectory);
         }
 
+        Duration jobDuration = Duration.between(fileStart, Instant.now());
+        String duration = LocalTime.MIDNIGHT.plus(jobDuration).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
         response.append("=====================================================\n");
         response.append("Currently doing work on " + config.get(ConfigConst.WORKER_NAME) + "\n");
         response.append("MESSAGE: " + message.toString() + "\n");
         response.append("EXIT CODE: " + exitValue + "\n");
+        response.append("TIME SPENT: " + duration + "\n");
         response.append("=====================================================\n");
         response.append(stdOutAndErr);
     }
