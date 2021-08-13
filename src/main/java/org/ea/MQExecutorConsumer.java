@@ -118,6 +118,7 @@ public class MQExecutorConsumer extends DefaultConsumer {
         String duration = LocalTime.MIDNIGHT.plus(jobDuration).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
         response.append("=====================================================\n");
+        response.append("Running version " + MQExecutor.class.getPackage().getImplementationVersion() + "\n");
         response.append("Currently doing work on " + config.get(ConfigConst.WORKER_NAME) + "\n");
         response.append("MESSAGE: " + message.toString() + "\n");
         response.append("EXIT CODE: " + exitValue + "\n");
