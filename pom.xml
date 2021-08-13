@@ -13,6 +13,13 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:kalaspuffar/mq-executor.git</connection>
+        <developerConnection>scm:git:git@github.com:kalaspuffar/mq-executor.git</developerConnection>
+        <url>https://github.com/kalaspuffar/mq-executor</url>
+        <tag>@{project.version}</tag>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>com.rabbitmq</groupId>
@@ -87,6 +94,9 @@
                     <preparationGoals>package</preparationGoals>
                     <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
                     <tagNameFormat>@{project.version}</tagNameFormat>
+                    <remoteTagging>false</remoteTagging>
+                    <localCheckout>true</localCheckout>
+                    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
 
