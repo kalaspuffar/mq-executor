@@ -82,6 +82,10 @@ public class MQExecutorConsumer extends DefaultConsumer {
         boolean windows = System.getProperty("os.name").startsWith("Windows");
 
         ProcessBuilder builder = new ProcessBuilder(windows ? "cmd.exe" : "/bin/sh");
+        builder.redirectErrorStream(true);
+        File workLog = new File(workDirectory, "work.log");
+        System.out.println("Worklog located at: " + workLog.getAbsolutePath());
+        builder.redirectOutput(workLog);
         Process process = builder.start();
 
         BufferedWriter cmdLine = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -98,8 +102,7 @@ public class MQExecutorConsumer extends DefaultConsumer {
         writeCmd(cmdLine, windows ? "EXIT /B 0" : "exit 0");
 
         process.waitFor(1, TimeUnit.HOURS);
-        printStream(stdOutAndErr, process.getErrorStream());
-        printStream(stdOutAndErr, process.getInputStream());
+        printStream(stdOutAndErr, new FileInputStream(workLog));
         return process.exitValue();
     }
 
