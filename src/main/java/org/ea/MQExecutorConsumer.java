@@ -71,6 +71,13 @@ public class MQExecutorConsumer extends DefaultConsumer {
         }
     }
 
+    private void writeCmd(BufferedWriter cmdLine, String cmd) throws Exception {
+        System.out.println(cmd);
+        cmdLine.write(cmd);
+        cmdLine.newLine();
+        cmdLine.flush();
+    }
+
     private int runCommand(CommandLineBuilder clb, StringBuilder stdOutAndErr, File workDirectory) throws Exception {
         boolean windows = System.getProperty("os.name").startsWith("Windows");
 
@@ -79,19 +86,16 @@ public class MQExecutorConsumer extends DefaultConsumer {
 
         BufferedWriter cmdLine = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-        String errorHandling = windows ? "IF %ERRORLEVEL% NEQ 0 (EXIT /B %ERRORLEVEL%)" : "[ $? -eq 0 ] || exit $?";
+        String errorHandling = windows ?
+                "IF %ERRORLEVEL% NEQ 0 (EXIT /B %ERRORLEVEL%)" :
+                "[ $? -eq 0 ] || exit $?";
 
         for (String cmd : clb.getCommand().split("\n")) {
-            cmdLine.write(cmd);
-            cmdLine.newLine();
-            cmdLine.write(errorHandling);
-            cmdLine.newLine();
-            cmdLine.flush();
+            writeCmd(cmdLine, cmd);
+            writeCmd(cmdLine, errorHandling);
         }
 
-        cmdLine.write(windows ? "EXIT /B 0" : "exit 0");
-        cmdLine.newLine();
-        cmdLine.flush();
+        writeCmd(cmdLine, windows ? "EXIT /B 0" : "exit 0");
 
         process.waitFor(1, TimeUnit.HOURS);
         printStream(stdOutAndErr, process.getErrorStream());
