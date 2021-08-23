@@ -6,5 +6,5 @@
   "rabbitmq_password": "",
   "rabbitmq_vhost": "",
   "rabbitmq_request_queue": "",
-  "rabbitmq_response_queue": "",
+  "rabbitmq_response_queue": ""
 }
