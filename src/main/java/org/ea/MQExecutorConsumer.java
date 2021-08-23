@@ -72,7 +72,6 @@ public class MQExecutorConsumer extends DefaultConsumer {
     }
 
     private void writeCmd(BufferedWriter cmdLine, String cmd) throws Exception {
-        System.out.println(cmd);
         cmdLine.write(cmd);
         cmdLine.newLine();
         cmdLine.flush();
