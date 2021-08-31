@@ -14,6 +14,7 @@ import org.json.simple.JSONValue;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 public class MQExecutor {
     private static final Logger logger = Logger.getLogger(MQExecutor.class);
@@ -57,7 +58,6 @@ public class MQExecutor {
 
             System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
-
             final MQExecutorConsumer mqExecutorConsumer = new MQExecutorConsumer(channel, config);
 
             channel.basicConsume(
@@ -94,12 +94,32 @@ public class MQExecutor {
                 }
             }
 
+            ServiceLoader<Reporter> reporters = ServiceLoader.load(Reporter.class);
+            Reporter reporter = null;
+            int highestPrio = -1;
+            for (Reporter r : reporters) {
+                if (highestPrio < r.getPriority()) {
+                    reporter = r;
+                    highestPrio = r.getPriority();
+                }
+            }
+
+            if (reporter == null) {
+                throw new Exception("No reporter present");
+            }
+            reporter.init(
+                MQExecutor.class.getName(),
+                MQExecutor.class.getPackage().getImplementationVersion(),
+                (String)config.get(ConfigConst.WORKER_NAME)
+            );
+
             while(true) {
                 System.out.println("Are you still there?");
                 if (!connectionThread.isAlive()) {
                     break;
                 }
                 System.out.println("I'm still alive...");
+                reporter.reportActivity();
                 Thread.sleep(5 * 60000);
             }
         } catch (Exception e) {
