@@ -4,7 +4,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>mq-executor</artifactId>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>0.0.7</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -15,7 +15,7 @@
         <connection>scm:git:git@github.com:kalaspuffar/mq-executor.git</connection>
         <developerConnection>scm:git:git@github.com:kalaspuffar/mq-executor.git</developerConnection>
         <url>https://github.com/kalaspuffar/mq-executor</url>
-        <tag>@{project.version}</tag>
+        <tag>0.0.7</tag>
     </scm>
 
     <dependencies>
