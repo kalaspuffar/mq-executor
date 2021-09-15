@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
 public class CommandLineBuilder {
     private Pattern argumentMatcher = Pattern.compile("\\[[a-z_]+\\]");
     private Map<String, CommandFile> commands = new HashMap<>();
-    private JSONObject config;
     private JSONObject message;
     private String resultCommand;
     private StringBuilder errorMessage;
+    private StringBuilder headerConfig;
 
     public CommandLineBuilder() throws Exception {
         File dir = new File("commands");
@@ -24,10 +24,6 @@ public class CommandLineBuilder {
                 new CommandFile(f)
             );
         }
-    }
-
-    public void setConfig(JSONObject config) {
-        this.config = config;
     }
 
     public void setMessage(JSONObject message) {
@@ -49,6 +45,7 @@ public class CommandLineBuilder {
         }
 
         CommandFile cf = commands.get(cmd);
+        headerConfig = cf.getHeaderConfig();
         resultCommand = cf.getCommand();
         Matcher m = argumentMatcher.matcher(resultCommand);
         while (m.find()) {
@@ -71,6 +68,10 @@ public class CommandLineBuilder {
 
     public String getCommand() {
         return resultCommand;
+    }
+
+    public String getHeaderConfig() {
+        return headerConfig.toString();
     }
 
     public String getErrorMessage() {

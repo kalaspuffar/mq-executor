@@ -13,8 +13,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MQExecutorConsumer extends DefaultConsumer {
     private static final Logger logger = Logger.getLogger(MQExecutorConsumer.class);
@@ -129,8 +131,43 @@ public class MQExecutorConsumer extends DefaultConsumer {
         response.append("MESSAGE: " + message.toString() + "\n");
         response.append("EXIT CODE: " + exitValue + "\n");
         response.append("TIME SPENT: " + duration + "\n");
+        response.append(getHeaderInfoFromConfig(clb.getHeaderConfig(), stdOutAndErr));
         response.append("=====================================================\n");
         response.append(stdOutAndErr);
+    }
+
+    private String getHeaderInfoFromConfig(String headerConfig, StringBuilder stdOutAndErr) {
+        List<String> output = new ArrayList<>();
+        Map<String, String> params = new HashMap<>();
+        for (String line : headerConfig.split("\n")) {
+            if (line.startsWith("$")) {
+                String[] paramArr = line.split("=");
+                params.put(paramArr[0], paramArr[1]);
+            } else {
+                output.add(line);
+            }
+        }
+
+        for (String key : params.keySet()) {
+            String value = params.get(key);
+            Pattern p = Pattern.compile(value);
+            Matcher m = p.matcher(stdOutAndErr);
+            if (m.find()) {
+                params.put(key, m.group(1));
+            }
+        }
+
+        String outputStr = "";
+        for (String line : output) {
+            for (String key : params.keySet()) {
+                if (line.contains(key)) {
+                    line = line.replace(key, params.get(key));
+                }
+            }
+
+            outputStr += line + "\n";
+        }
+        return outputStr;
     }
 
     private void printStream(StringBuilder response, InputStream inputStream) throws Exception{

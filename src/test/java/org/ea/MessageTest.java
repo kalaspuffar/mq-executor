@@ -30,5 +30,6 @@ public class MessageTest {
         Util.deleteDirectory(workDirectory);
 
         Assert.assertTrue("Exit code should be 0 for this command.", response.toString().contains("EXIT CODE: 0"));
+        Assert.assertTrue("Header should have info", response.toString().contains("There is 1 file and 2 dir"));
     }
 }
