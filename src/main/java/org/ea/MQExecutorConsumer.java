@@ -102,7 +102,9 @@ public class MQExecutorConsumer extends DefaultConsumer {
 
         writeCmd(cmdLine, windows ? "EXIT /B 0" : "exit 0");
 
-        process.waitFor(1, TimeUnit.HOURS);
+        if (process.waitFor(1, TimeUnit.HOURS) == false) {
+            process.destroyForcibly();
+        }
         printStream(stdOutAndErr, new FileInputStream(workLog));
         return process.exitValue();
     }
