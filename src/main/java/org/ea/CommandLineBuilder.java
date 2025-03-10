@@ -61,7 +61,19 @@ public class CommandLineBuilder {
                 return false;
             }
 
-            resultCommand = resultCommand.replace(replace, (String)message.get(arg));
+            if (message.get(arg) instanceof String) {
+                resultCommand = resultCommand.replace(replace, (String)message.get(arg));
+            } else if (message.get(arg) instanceof Integer) {
+                resultCommand = resultCommand.replace(replace, Integer.toString((Integer) message.get(arg)));
+            } else if (message.get(arg) instanceof Long) {
+                resultCommand = resultCommand.replace(replace, Long.toString((Long) message.get(arg)));
+            } else if (message.get(arg) instanceof Float) {
+                resultCommand = resultCommand.replace(replace, Double.toString((Float) message.get(arg)));
+            } else if (message.get(arg) instanceof Double) {
+                resultCommand = resultCommand.replace(replace, Double.toString((Double) message.get(arg)));
+            } else if (message.get(arg) instanceof Boolean) {
+                resultCommand = resultCommand.replace(replace, Boolean.toString((Boolean) message.get(arg)));
+            }
         }
         return true;
     }
